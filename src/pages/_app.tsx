@@ -1,5 +1,5 @@
 // src/pages/_app.tsx
-import { NextUIProvider } from '@nextui-org/react';
+import { createTheme, NextUIProvider } from '@nextui-org/react';
 import { httpBatchLink } from '@trpc/client/links/httpBatchLink';
 import { loggerLink } from '@trpc/client/links/loggerLink';
 import { withTRPC } from '@trpc/next';
@@ -8,9 +8,13 @@ import superjson from 'superjson';
 import type { AppRouter } from '../server/router';
 import '../styles/globals.css';
 
+const darkTheme = createTheme({
+  type: 'dark',
+})
+
 const MyApp: AppType = ({ Component, pageProps }) => {
   return (
-    <NextUIProvider>
+    <NextUIProvider theme={darkTheme}>
       <Component {...pageProps} />
     </NextUIProvider>
   );
