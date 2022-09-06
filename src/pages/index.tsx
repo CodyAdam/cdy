@@ -14,12 +14,20 @@ const Home: NextPage = () => {
         <link rel='icon' href='/favicon.ico' />
       </Head>
 
-      <main className='flex flex-col items-center justify-center min-h-screen p-4 bg-slate-700'>
-        <h1 className='text-5xl md:text-[5rem] leading-normal font-extrabold text-zinc-900'>
+      <main className='flex flex-col items-center justify-center min-h-screen p-4 bg-zinc-800'>
+        {/* <h1 className='text-5xl md:text-[5rem] leading-normal font-extrabold text-zinc-900'>
           <span className='text-purple-300'>cdy</span>.pw
-        </h1>
-        <div className='pt-6 text-2xl text-blue-500 flex justify-center items-center w-full'>
-          {query.data ? <p>{JSON.stringify(query.data)}</p> : <p>Loading..</p>}
+        </h1> */}
+        <div className='max-w-2xl min-w-[35rem]'>
+          <UI.Card>
+            <UI.Card.Header>Create a new link</UI.Card.Header>
+            <UI.Card.Body>
+              <UI.Input /> 
+            </UI.Card.Body>
+            <UI.Card.Footer>
+              <UI.Button>Submit</UI.Button>
+            </UI.Card.Footer>
+          </UI.Card>
         </div>
       </main>
     </>
