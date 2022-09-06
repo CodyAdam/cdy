@@ -7,16 +7,30 @@ import type { AppType } from 'next/dist/shared/lib/utils';
 import superjson from 'superjson';
 import type { AppRouter } from '../server/router';
 import '../styles/globals.css';
+import { ThemeProvider as NextThemesProvider } from 'next-themes';
+
+const lightTheme = createTheme({
+  type: 'light',
+});
 
 const darkTheme = createTheme({
   type: 'dark',
-})
+});
 
 const MyApp: AppType = ({ Component, pageProps }) => {
   return (
-    <NextUIProvider theme={darkTheme}>
-      <Component {...pageProps} />
-    </NextUIProvider>
+    <NextThemesProvider
+      defaultTheme='system'
+      attribute='class'
+      value={{
+        light: lightTheme.className,
+        dark: darkTheme.className,
+      }}
+    >
+      <NextUIProvider>
+        <Component {...pageProps} />
+      </NextUIProvider>
+    </NextThemesProvider>
   );
 };
 
