@@ -13,3 +13,4 @@
 - [ ] Make it look nice in light mode
 - [ ] Make it responsive
 - [ ] Refetch on create
+- [ ] Check if slug is already used
