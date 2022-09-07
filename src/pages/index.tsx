@@ -1,4 +1,4 @@
-import { Card, Button, Input, Text, Checkbox, Loading, Table, Spacer, Switch, useTheme } from '@nextui-org/react';
+import { Card, Button, Text, Checkbox, Loading, Table, Spacer, Switch, useTheme, Input } from '@nextui-org/react';
 import type { NextPage } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
@@ -55,7 +55,6 @@ const Home: NextPage = () => {
         <meta name='description' content='Create your own short URL' />
         <link rel='icon' href='/favicon.ico' />
       </Head>
-
       <main className='flex flex-col items-center justify-center min-h-screen overflow-y-auto sm:p-10 p-4 '>
         <Switch
           checked={isDark}
@@ -67,10 +66,10 @@ const Home: NextPage = () => {
           iconOff={<SunIcon />}
         />
         <div className='flex flex-col gap-10 max-w-full'>
-          <div>
-            <Link href='https://cdy.pw/me' passHref>
-              <a target='_blank'>
-                <Card isHoverable className='bg-transparent'>
+          <div className='flex items-center flex-col justify-center '>
+            <Card isHoverable className='bg-transparent w-fit'>
+              <Link href='https://cdy.pw/me' passHref>
+                <a target='_blank'>
                   <Text
                     h1
                     css={{
@@ -82,6 +81,12 @@ const Home: NextPage = () => {
                   >
                     cdy.pw
                   </Text>
+                </a>
+              </Link>
+            </Card>
+            <Card isHoverable className='bg-transparent w-fit'>
+              <Link href='https://github.com/CodyAdam' passHref>
+                <a target='_blank'>
                   <Text
                     h6
                     color='$accents5'
@@ -91,9 +96,9 @@ const Home: NextPage = () => {
                   >
                     Cool and fast URL shortener by <span className='text-yellow-400'>Cody</span>
                   </Text>
-                </Card>
-              </a>
-            </Link>
+                </a>
+              </Link>
+            </Card>
           </div>
           <Card className={`shrink ${isDark && 'bg-[rgb(15,15,16)]'}`}>
             <form
@@ -102,7 +107,7 @@ const Home: NextPage = () => {
                 handleSubmit();
               }}
             >
-              <Card.Header>Create a new link</Card.Header>
+              <Card.Header>Create a new short link</Card.Header>
               <Card.Divider />
               <Card.Body className='flex flex-col'>
                 <Input
@@ -133,25 +138,20 @@ const Home: NextPage = () => {
                 />
                 <Spacer y={1} />
                 <Checkbox
+                  label='Public'
                   color='gradient'
                   onChange={(isPublic) => {
                     setCreateState({ ...createState, isPublic });
                   }}
                   size='sm'
                   isSelected={createState.isPublic}
-                >
-                  Public
-                </Checkbox>
+                />
               </Card.Body>
               <Card.Divider />
               <Card.Footer className='justify-end gap-4 whitespace-pre-wrap'>
                 {mutation.isError && <Text color='error'>An error occurred, open the console to see the detail</Text>}
                 <Card isHoverable isPressable className='w-fit'>
-                  <Button
-                    type='submit'
-                    auto
-                    disabled={mutation.isLoading}
-                  >
+                  <Button type='submit' auto disabled={mutation.isLoading}>
                     {!mutation.isLoading ? 'Create' : <Loading size='sm' />}
                   </Button>
                 </Card>
