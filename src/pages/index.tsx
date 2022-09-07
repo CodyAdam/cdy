@@ -1,4 +1,16 @@
-import { Card, Button, Text, Checkbox, Loading, Table, Spacer, Switch, useTheme, Input } from '@nextui-org/react';
+import {
+  Card,
+  Button,
+  Text,
+  Checkbox,
+  Loading,
+  Table,
+  Spacer,
+  Switch,
+  useTheme,
+  Input,
+  Tooltip,
+} from '@nextui-org/react';
 import type { NextPage } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
@@ -7,6 +19,7 @@ import MoonIcon from '../components/MoonIcon';
 import SunIcon from '../components/SunIcon';
 import { inferMutationInput, trpc } from '../utils/trpc';
 import { useTheme as useNextTheme } from 'next-themes';
+import ClipboardIcon from '../components/ClipboardIcon';
 
 const DEFAULT_URL: inferMutationInput<'shortLink.create'> = {
   isPublic: false,
@@ -22,10 +35,13 @@ const Home: NextPage = () => {
   const mutationValid = trpc.useMutation(['shortLink.isValidSlug']);
   const { setTheme } = useNextTheme();
   const { isDark } = useTheme();
+  const [createdSlugs, setCreatedSlugs] = useState<string[]>([]);
+  const [copied, setCopied] = useState(false);
 
   function handleSubmit() {
     mutation.mutate(createState, {
       onSuccess() {
+        setCreatedSlugs((prev) => [createState.slug, ...prev]);
         setCreateState(DEFAULT_URL);
         query.refetch();
       },
@@ -65,7 +81,7 @@ const Home: NextPage = () => {
           iconOn={<MoonIcon />}
           iconOff={<SunIcon />}
         />
-        <div className='flex flex-col gap-10 max-w-full'>
+        <div className='flex flex-col gap-8 max-w-full'>
           <div className='flex items-center flex-col justify-center '>
             <Card isHoverable className='bg-transparent w-fit'>
               <Link href='https://cdy.pw/me' passHref>
@@ -151,13 +167,35 @@ const Home: NextPage = () => {
               <Card.Footer className='justify-end gap-4 whitespace-pre-wrap'>
                 {mutation.isError && <Text color='error'>An error occurred, open the console to see the detail</Text>}
                 <Card isHoverable isPressable className='w-fit'>
-                  <Button type='submit' auto disabled={mutation.isLoading}>
+                  <Button type='submit' color='gradient' auto disabled={mutation.isLoading}>
                     {!mutation.isLoading ? 'Create' : <Loading size='sm' />}
                   </Button>
                 </Card>
               </Card.Footer>
             </form>
           </Card>
+          {createdSlugs.map((slug) => (
+            <Tooltip content={copied ? 'copied!' : 'copy'} key={slug} className='w-full' color={'invert'}>
+              <Button
+                color='gradient'
+                onClick={() => {
+                  navigator.clipboard.writeText(`https://cdy.pw/${slug}`);
+                  setCopied(true);
+                  setTimeout(() => {
+                    setCopied(false);
+                  }, 1000);
+                }}
+                className='w-full'
+                css={{ fill: '$accents9' }}
+              >
+                <p className=''>
+                  cdy.pw/<strong>{slug}</strong>
+                </p>
+                <Spacer x={0.6} />
+                <ClipboardIcon className='w-3' />
+              </Button>
+            </Tooltip>
+          ))}
           {query.isSuccess && (
             <Table compact striped bordered className='max-w-full' aria-labelledby='public links table'>
               <Table.Header>
