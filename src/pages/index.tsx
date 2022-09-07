@@ -91,9 +91,10 @@ const Home: NextPage = () => {
                     css={{
                       textGradient: '45deg, $red600 10%, $yellow600 50%, $pink900 90%',
                       textAlign: 'center',
+                      margin: '0',
                     }}
                     weight='bold'
-                    className='cursor-pointer'
+                    className='cursor-pointer px-1'
                   >
                     cdy.pw
                   </Text>
@@ -108,7 +109,9 @@ const Home: NextPage = () => {
                     color='$accents5'
                     css={{
                       textAlign: 'center',
+                      margin: '0',
                     }}
+                    className='cursor-pointer px-1'
                   >
                     Cool and fast URL shortener by <span className='text-yellow-400'>Cody</span>
                   </Text>
