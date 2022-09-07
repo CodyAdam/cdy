@@ -70,7 +70,7 @@ const Home: NextPage = () => {
           <div>
             <Link href='https://cdy.pw/me' passHref>
               <a target='_blank'>
-                <Card isHoverable isPressable className='bg-transparent'>
+                <Card isHoverable className='bg-transparent'>
                   <Text
                     h1
                     css={{
