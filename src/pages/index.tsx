@@ -1,6 +1,7 @@
-import { Card, Button, Input, Text, Checkbox } from '@nextui-org/react';
+import { Card, Button, Input, Text, Checkbox, Loading } from '@nextui-org/react';
 import type { NextPage } from 'next';
 import Head from 'next/head';
+import Link from 'next/link';
 import { useState } from 'react';
 import { inferMutationInput, trpc } from '../utils/trpc';
 
@@ -32,8 +33,8 @@ const Home: NextPage = () => {
         <link rel='icon' href='/favicon.ico' />
       </Head>
 
-      <main className='flex flex-col items-center justify-center min-h-screen p-4'>
-        <div className='w-[25rem] flex flex-col gap-10'>
+      <main className='flex flex-col items-center justify-center min-h-screen overflow-y-auto p-4'>
+        <div className='max-w-[25rem] flex flex-col gap-10'>
           <Card className='bg-[rgb(15,15,16)]'>
             <Card.Header>Create a new link</Card.Header>
             <Card.Divider />
@@ -70,7 +71,9 @@ const Home: NextPage = () => {
             </Card.Body>
             <Card.Divider />
             <Card.Footer className='justify-end'>
-              <Button onClick={handleSubmit}>Create</Button>
+              <Button onClick={handleSubmit} color='gradient' disabled={mutation.isLoading}>
+                {!mutation.isLoading ? 'Create' : <Loading size='sm' />}
+              </Button>
             </Card.Footer>
           </Card>
           {query.isSuccess && (
@@ -79,11 +82,11 @@ const Home: NextPage = () => {
               <Card.Divider />
               <Card.Body>
                 {query.data.map((link) => (
-                  <div key={link.id} className='flex items-center justify-between gap-2'>
+                  <Button key={link.slug} color='secondary' className='flex items-center justify-between gap-2'>
                     <Text>/{link.slug}</Text>
-                    <Text h3>&rarr;</Text>
-                    <Text>{link.url}</Text>
-                  </div>
+                    <Text h3 >&rarr;</Text>
+                    <Text className='overflow-hidden text-ellipsis whitespace-nowrap'>{link.url}</Text>
+                  </Button>
                 ))}
               </Card.Body>
             </Card>
