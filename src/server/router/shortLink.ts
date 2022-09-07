@@ -23,7 +23,20 @@ export const shortLinkRouter = createRouter()
         data: input,
       });
     }
-  });
+  }).mutation("isValidSlug", {
+    input: z.object({
+      slug: z.string(),
+    }),
+    async resolve({ input, ctx }) {
+      const slug = input.slug;
+      const shortLink = await ctx.prisma.shortLink.findUnique({
+        where: {
+          slug,
+        },
+      });
+      return shortLink === null;
+    }
+  })
 
 
 
