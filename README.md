@@ -22,6 +22,7 @@ For the redirections, I used the [Vercel](https://vercel.com) Edge Middleware fe
 
 # TODO
 
-- [ ] Zero space character URL
-- [ ] Public card show on scroll with loader
-- [ ] Maximize width of card
+- [X] Zero space character URL
+- [X] Maximize width of card
+
+- [x] Allow digits (0-9), letters(A-Z, a-z), and a few special characters ("-", ".", "_", "~").
