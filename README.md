@@ -8,7 +8,7 @@ This is a URL shortener. It's a simple web app that takes a long URL and returns
 
 ## How 
 
-For the redirections, I used the [Vercel](https://vercel.com) Edge Middleware feature for no cold and fast cached response. The links are stored in a MySQL [PlanetScale](https://planetscale.com) database.
+For the redirections, I used the [Vercel](https://vercel.com) Edge Middleware feature for no cold start and fast cached response. The links are stored in a MySQL [PlanetScale](https://planetscale.com) database.
 
 ## Tech Stack
 
