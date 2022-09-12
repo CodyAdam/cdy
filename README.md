@@ -22,7 +22,5 @@ For the redirections, I used the [Vercel](https://vercel.com) Edge Middleware fe
 
 # TODO
 
-- [X] Zero space character URL
-- [X] Maximize width of card
-
-- [x] Allow digits (0-9), letters(A-Z, a-z), and a few special characters ("-", ".", "_", "~").
+- [ ]  loader
+- [ ]  table potentially
