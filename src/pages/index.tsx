@@ -87,7 +87,7 @@ const Home: NextPage = () => {
           onChange={(e) => setTheme(e.target.checked ? 'dark' : 'light')}
           size='xl'
           css={{ fill: '$accents9' }}
-          className='absolute top-3 right-3'
+          className='absolute top-3 right-3 z-10'
           iconOn={<MoonIcon />}
           iconOff={<SunIcon />}
         />
