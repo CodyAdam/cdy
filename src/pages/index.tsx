@@ -172,8 +172,6 @@ const Home: NextPage = () => {
                       <Input
                         required
                         clearable
-                        //Allow digits (0-9), letters(A-Z, a-z), and a few special characters ("-", ".", "_", "~").
-                        pattern='[0-9a-zA-Z-._~]*'
                         label='Slug'
                         labelLeft='cdy.pw/'
                         value={createState.slug}
