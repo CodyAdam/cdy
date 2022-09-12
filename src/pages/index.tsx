@@ -21,6 +21,8 @@ import { inferMutationInput, trpc } from '../utils/trpc';
 import { useTheme as useNextTheme } from 'next-themes';
 import ClipboardIcon from '../components/ClipboardIcon';
 import { getZeroWidthSlug } from '../utils/url-helper';
+import GithubLogo from '../components/GithubLogo';
+import DoubleChevronDownIcon from '../components/DoubleChevronDownIcon';
 
 const DEFAULT_URL: inferMutationInput<'shortLink.create'> = {
   isPublic: false,
@@ -90,26 +92,33 @@ const Home: NextPage = () => {
           iconOff={<SunIcon />}
         />
         <div className='flex flex-col gap-8 max-w-lg w-full'>
-          <div className='min-h-screen flex flex-col gap-8 justify-center sm:p-10 p-4'>
-            <div className='flex items-center flex-col justify-center '>
-              <Card isHoverable className='bg-transparent w-fit'>
-                <Link href='https://cdy.pw/me' passHref>
-                  <a target='_blank'>
-                    <Text
-                      h1
-                      css={{
-                        textGradient: '45deg, $red600 10%, $yellow600 50%, $pink900 90%',
-                        textAlign: 'center',
-                        margin: '0',
-                      }}
-                      weight='bold'
-                      className='cursor-pointer px-1'
-                    >
-                      cdy.pw
-                    </Text>
-                  </a>
-                </Link>
-              </Card>
+          <div className='min-h-screen flex flex-col gap-8 justify-center sm:p-10 p-4 relative'>
+            <div className='flex items-center flex-col justify-center gap-2 '>
+              <Tooltip
+                content={copied ? 'copied!' : 'copy'}
+                className='w-fit cursor-pointer select-none'
+                color={'invert'}
+                onClick={() => {
+                  navigator.clipboard.writeText(`https://cdy.pw`);
+                  setCopied(true);
+                  setTimeout(() => {
+                    setCopied(false);
+                  }, 1000);
+                }}
+              >
+                <Text
+                  h1
+                  css={{
+                    textGradient: '45deg, $red600 -10%, $yellow600 50%, $pink800 100%',
+                    textAlign: 'center',
+                    margin: '0',
+                  }}
+                  weight='bold'
+                  className='cursor-pointer px-1'
+                >
+                  cdy.pw
+                </Text>
+              </Tooltip>
               <Card isHoverable className='bg-transparent w-fit'>
                 <Link href='https://github.com/CodyAdam' passHref>
                   <a target='_blank'>
@@ -120,27 +129,26 @@ const Home: NextPage = () => {
                         textAlign: 'center',
                         margin: '0',
                       }}
-                      className='cursor-pointer px-1'
+                      className='cursor-pointer px-1 flex items-center gap-1'
                     >
-                      Cool and fast URL shortener by <span className='text-yellow-400'>Cody</span>
+                      Cool and fast URL shortener by <span className='text-yellow-400'>Cody</span>{' '}
+                      <GithubLogo className='w-3 h-3 fill-yellow-400' />
                     </Text>
                   </a>
                 </Link>
               </Card>
             </div>
-            <Card className={`w-full border-2`} css={{backgroundColor: "$background"}} variant='bordered'>
+            <Card className={`w-full border-2`} css={{ backgroundColor: '$background' }} variant='bordered'>
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
                   handleSubmit();
                 }}
               >
-                <Card.Header>Create a new short link</Card.Header>
-                <Card.Divider height={2} />
                 <Card.Body className='flex flex-col'>
                   <Input
                     clearable
-                    label='Long URL'
+                    label='URL to shorten'
                     placeholder='https://example.com'
                     type='url'
                     value={createState.url}
@@ -156,7 +164,7 @@ const Home: NextPage = () => {
                     size='sm'
                     isSelected={invisibleSlug}
                   >
-                    Invisible space URL <span className='text-xs pl-2 font-semibold text-yellow-400'>(NEW!)</span>
+                    Invisible URL <span className='text-xs pl-2 font-semibold text-yellow-400'>(NEW!)</span>
                   </Checkbox>
                   <Spacer y={0.7} />
                   {!invisibleSlug && (
@@ -207,7 +215,7 @@ const Home: NextPage = () => {
                     isSelected={createState.isPublic}
                   />
                 </Card.Body>
-                <Card.Divider height={2} />
+                <Card.Divider height={1} />
                 <Card.Footer className='justify-end gap-4 whitespace-pre-wrap'>
                   {mutation.isError && (
                     <Text color='error'>An error occurred, open the console to see the details</Text>
@@ -242,8 +250,11 @@ const Home: NextPage = () => {
                 </Button>
               </Tooltip>
             ))}
+            <a href='#public' className='absolute bottom-5 left-0 right-0 flex items-center justify-center'>
+              <DoubleChevronDownIcon className={`h-5 ${isDark ? 'fill-zinc-800' : 'fill-zinc-400'}`} />
+            </a>
           </div>
-          <div className='min-h-screen flex flex-col gap-8 justify-center sm:p-10 p-4'>
+          <div id='public' className='min-h-screen flex flex-col gap-8 justify-center sm:p-10 p-4'>
             {query.isSuccess && (
               <Table compact striped bordered aria-labelledby='public links table'>
                 <Table.Header>
