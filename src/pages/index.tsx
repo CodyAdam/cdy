@@ -119,7 +119,7 @@ const Home: NextPage = () => {
               </Link>
             </Card>
           </div>
-          <Card className={`shrink ${isDark && 'bg-[rgb(15,15,16)]'}`}>
+          <Card className={`shrink border-2`} css={{backgroundColor: "$background"}} variant='bordered'>
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -127,7 +127,7 @@ const Home: NextPage = () => {
               }}
             >
               <Card.Header>Create a new short link</Card.Header>
-              <Card.Divider />
+              <Card.Divider height={2} />
               <Card.Body className='flex flex-col'>
                 <Input
                   clearable
@@ -166,9 +166,9 @@ const Home: NextPage = () => {
                   isSelected={createState.isPublic}
                 />
               </Card.Body>
-              <Card.Divider />
+              <Card.Divider height={2} />
               <Card.Footer className='justify-end gap-4 whitespace-pre-wrap'>
-                {mutation.isError && <Text color='error'>An error occurred, open the console to see the detail</Text>}
+                {mutation.isError && <Text color='error'>An error occurred, open the console to see the details</Text>}
                 <Card isHoverable isPressable className='w-fit'>
                   <Button type='submit' color='gradient' auto disabled={mutation.isLoading}>
                     {!mutation.isLoading ? 'Create' : <Loading size='sm' />}
