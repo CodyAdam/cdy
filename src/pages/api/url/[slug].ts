@@ -12,7 +12,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   const data = await prisma.shortLink.findUnique({
     where: {
-      slug: decodeURI(slug),
+      slug,
     },
   });
 
