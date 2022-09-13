@@ -75,7 +75,7 @@ const Home: NextPage = () => {
   return (
     <>
       <Head>
-        <title>cdy.pw | URL shortener</title>
+        <title>cdy.pw</title>
         <meta name='description' content='Create your own short URL' />
         <link rel='icon' href='/favicon.ico' />
       </Head>
@@ -242,7 +242,7 @@ const Home: NextPage = () => {
             ))}
           </div>
           <div className='min-h-screen flex flex-col gap-8 justify-center sm:p-10 p-4'>
-            {query.isSuccess && (
+            {query.isSuccess ? (
               <Table compact striped bordered aria-labelledby='public links table'>
                 <Table.Header>
                   <Table.Column>Slug</Table.Column>
@@ -265,6 +265,8 @@ const Home: NextPage = () => {
                   ))}
                 </Table.Body>
               </Table>
+            ) : (
+              <Loading size='xl' />
             )}
           </div>
         </div>
