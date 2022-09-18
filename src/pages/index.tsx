@@ -48,7 +48,7 @@ const Home: NextPage = () => {
   const [urlMode, setUrlMode] = useState(UrlMode.Slug);
 
   function handleSubmit() {
-    let state = createState;
+    const state = createState;
     switch (urlMode) {
       case UrlMode.Slug:
         break;
