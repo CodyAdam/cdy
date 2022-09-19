@@ -22,5 +22,4 @@ For the redirections, I used the [Vercel](https://vercel.com) Edge Middleware fe
 
 # TODO
 
-- [ ]  loader
-- [ ]  table potentially
+- [ ]  Slug generator buttons
