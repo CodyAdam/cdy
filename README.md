@@ -19,7 +19,3 @@ For the redirections, I used the [Vercel](https://vercel.com) Edge Middleware fe
 - [TailwindCSS](https://tailwindcss.com)
 - [NextUI](https://nextui.org)
 - [tRPC](https://trpc.io) 
-
-# TODO
-
-- [ ]  Slug generator buttons
