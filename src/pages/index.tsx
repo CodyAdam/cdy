@@ -9,7 +9,7 @@ import {
   Switch,
   useTheme,
   Input,
-  Tooltip,
+  Tooltip, Radio,
 } from '@nextui-org/react';
 import type { NextPage } from 'next';
 import Head from 'next/head';
@@ -20,7 +20,7 @@ import SunIcon from '../components/SunIcon';
 import { inferMutationInput, trpc } from '../utils/trpc';
 import { useTheme as useNextTheme } from 'next-themes';
 import ClipboardIcon from '../components/ClipboardIcon';
-import { getZeroWidthSlug } from '../utils/url-helper';
+import { getRandomAmogusSlug, getZeroWidthSlug } from '../utils/url-helper';
 import GithubLogo from '../components/GithubLogo';
 import DoubleChevronDownIcon from '../components/DoubleChevronDownIcon';
 
@@ -29,7 +29,11 @@ const DEFAULT_URL: inferMutationInput<'shortLink.create'> = {
   url: '',
   slug: '',
 };
-
+enum UrlMode {
+  Slug = 'slug',
+  Invisible = 'invisible',
+  Amogus = 'amogus',
+}
 const Home: NextPage = () => {
   const query = trpc.useQuery(['shortLink.getAllPublic']);
   const mutation = trpc.useMutation('shortLink.create');
@@ -41,10 +45,22 @@ const Home: NextPage = () => {
   const [createdSlugs, setCreatedSlugs] = useState<string[]>([]);
   const [copied, setCopied] = useState(false);
   const [patternMatch, setPatternMatch] = useState(true);
-  const [invisibleSlug, setInvisibleSlug] = useState(false);
+  const [urlMode, setUrlMode] = useState(UrlMode.Slug);
 
   function handleSubmit() {
-    mutation.mutate(createState, {
+    const state = createState;
+    switch (urlMode) {
+      case UrlMode.Slug:
+        break;
+      case UrlMode.Invisible:
+        state.slug = getZeroWidthSlug(4);
+        break;
+      case UrlMode.Amogus:
+        console.log('amogus');
+        state.slug = getRandomAmogusSlug();
+        break;
+    }
+    mutation.mutate(state, {
       onSuccess() {
         setCreatedSlugs((prev) => [createState.slug, ...prev]);
         setCreateState(DEFAULT_URL);
@@ -52,11 +68,6 @@ const Home: NextPage = () => {
       },
     });
   }
-
-  useEffect(() => {
-    if (invisibleSlug) setCreateState((prev) => ({ ...prev, slug: getZeroWidthSlug(4) }));
-    else setCreateState((prev) => ({ ...prev, slug: '' }));
-  }, [invisibleSlug]);
 
   useEffect(() => {
     if (createState.slug.length === 0) {
@@ -158,16 +169,23 @@ const Home: NextPage = () => {
                     required
                   />
                   <Spacer y={1} />
-                  <Checkbox
-                    color='gradient'
-                    onChange={(invisible) => setInvisibleSlug(invisible)}
-                    size='sm'
-                    isSelected={invisibleSlug}
-                  >
-                    Invisible URL <span className='text-xs pl-2 font-semibold text-yellow-400'>(NEW!)</span>
-                  </Checkbox>
+                  <Radio.Group defaultValue={UrlMode.Slug} onChange={(value) => {
+                    setUrlMode(value as UrlMode);
+                  }}>
+                    <Radio value={UrlMode.Slug}>Slug</Radio>
+                    <Radio value={UrlMode.Invisible}>Invisible <span className='text-xs pl-2 font-semibold text-yellow-400'>(NEW!)</span></Radio>
+                    <Radio value={UrlMode.Amogus}>Amogus <span className='text-xs pl-2 font-semibold text-purple-400 animate-bounce'>(INSANE!)</span></Radio>
+                  </Radio.Group>
+                  {/*<Checkbox*/}
+                  {/*  color='gradient'*/}
+                  {/*  onChange={(invisible) => setInvisibleSlug(invisible)}*/}
+                  {/*  size='sm'*/}
+                  {/*  isSelected={invisibleSlug}*/}
+                  {/*>*/}
+                  {/*  Invisible URL <span className='text-xs pl-2 font-semibold text-yellow-400'>(NEW!)</span>*/}
+                  {/*</Checkbox>*/}
                   <Spacer y={0.7} />
-                  {!invisibleSlug && (
+                  {urlMode == UrlMode.Slug && (
                     <>
                       <Input
                         required
