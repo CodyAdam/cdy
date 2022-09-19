@@ -21,10 +21,20 @@ import SunIcon from '../components/SunIcon';
 import { inferMutationInput, trpc } from '../utils/trpc';
 import { useTheme as useNextTheme } from 'next-themes';
 import ClipboardIcon from '../components/ClipboardIcon';
-import { getRandomAmogusSlug, getZeroWidthSlug } from '../utils/url-helper';
+import {
+  getRandomAmogusSlug,
+  getZeroWidthSlug,
+  getRandomAnimalSlug,
+  getRandomEmojiSlug,
+  getRandomFoodSlug,
+  getRandomHandSlug,
+  getRandomHeadSlug,
+  getRandomHeartSlug,
+} from '../utils/url-helper';
 import GithubLogo from '../components/GithubLogo';
 import DoubleChevronDownIcon from '../components/DoubleChevronDownIcon';
-import getRandomShadySlug from "shady-slug";
+import getRandomShadySlug from 'shady-slug';
+import { getRandomInt } from '../utils/math-helpers';
 
 const DEFAULT_URL: inferMutationInput<'shortLink.create'> = {
   isPublic: false,
@@ -34,13 +44,37 @@ const DEFAULT_URL: inferMutationInput<'shortLink.create'> = {
 
 const generators = [
   {
-    buttonText: 'Amogus slug',
-    get: getRandomAmogusSlug,
+    buttonText: 'Amogus ඞ',
+    get: () => getRandomAmogusSlug(getRandomInt(4, 7)),
   },
   {
-    buttonText: 'Shady slug',
+    buttonText: 'Animal 🐢',
+    get: () => getRandomAnimalSlug(getRandomInt(4, 7)),
+  },
+  {
+    buttonText: 'Food 🍖',
+    get: () => getRandomFoodSlug(getRandomInt(4, 7)),
+  },
+  {
+    buttonText: 'Hand 👌',
+    get: () => getRandomHandSlug(getRandomInt(4, 7)),
+  },
+  {
+    buttonText: 'Head 😊',
+    get: () => getRandomHeadSlug(getRandomInt(4, 7)),
+  },
+  {
+    buttonText: 'Heart 💛',
+    get: () => getRandomHeartSlug(getRandomInt(4, 7)),
+  },
+  {
+    buttonText: 'Any Emoji',
+    get: () => getRandomEmojiSlug(getRandomInt(4, 7)),
+  },
+  {
+    buttonText: 'Shady 💦',
     get: getRandomShadySlug,
-  }
+  },
 ];
 
 const Home: NextPage = () => {
