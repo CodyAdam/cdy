@@ -9,7 +9,8 @@ import {
   Switch,
   useTheme,
   Input,
-  Tooltip, Radio,
+  Tooltip,
+  Collapse,
 } from '@nextui-org/react';
 import type { NextPage } from 'next';
 import Head from 'next/head';
@@ -29,11 +30,14 @@ const DEFAULT_URL: inferMutationInput<'shortLink.create'> = {
   url: '',
   slug: '',
 };
-enum UrlMode {
-  Slug = 'slug',
-  Invisible = 'invisible',
-  Amogus = 'amogus',
-}
+
+const generators = [
+  {
+    buttonText: 'Amogus slug',
+    get: getRandomAmogusSlug,
+  },
+];
+
 const Home: NextPage = () => {
   const query = trpc.useQuery(['shortLink.getAllPublic']);
   const mutation = trpc.useMutation('shortLink.create');
@@ -44,22 +48,11 @@ const Home: NextPage = () => {
   const { isDark } = useTheme();
   const [createdSlugs, setCreatedSlugs] = useState<string[]>([]);
   const [copied, setCopied] = useState(false);
-  const [patternMatch, setPatternMatch] = useState(true);
-  const [urlMode, setUrlMode] = useState(UrlMode.Slug);
+  const [invisibleSlug, setInvisibleSlug] = useState(false);
 
   function handleSubmit() {
     const state = createState;
-    switch (urlMode) {
-      case UrlMode.Slug:
-        break;
-      case UrlMode.Invisible:
-        state.slug = getZeroWidthSlug(4);
-        break;
-      case UrlMode.Amogus:
-        console.log('amogus');
-        state.slug = getRandomAmogusSlug();
-        break;
-    }
+    if (invisibleSlug) state.slug = getZeroWidthSlug(4);
     mutation.mutate(state, {
       onSuccess() {
         setCreatedSlugs((prev) => [createState.slug, ...prev]);
@@ -169,23 +162,16 @@ const Home: NextPage = () => {
                     required
                   />
                   <Spacer y={1} />
-                  <Radio.Group defaultValue={UrlMode.Slug} onChange={(value) => {
-                    setUrlMode(value as UrlMode);
-                  }}>
-                    <Radio value={UrlMode.Slug}>Slug</Radio>
-                    <Radio value={UrlMode.Invisible}>Invisible <span className='text-xs pl-2 font-semibold text-yellow-400'>(NEW!)</span></Radio>
-                    <Radio value={UrlMode.Amogus}>Amogus <span className='text-xs pl-2 font-semibold text-purple-400 animate-bounce'>(INSANE!)</span></Radio>
-                  </Radio.Group>
-                  {/*<Checkbox*/}
-                  {/*  color='gradient'*/}
-                  {/*  onChange={(invisible) => setInvisibleSlug(invisible)}*/}
-                  {/*  size='sm'*/}
-                  {/*  isSelected={invisibleSlug}*/}
-                  {/*>*/}
-                  {/*  Invisible URL <span className='text-xs pl-2 font-semibold text-yellow-400'>(NEW!)</span>*/}
-                  {/*</Checkbox>*/}
+                  <Checkbox
+                    color='gradient'
+                    onChange={(invisible) => setInvisibleSlug(invisible)}
+                    size='sm'
+                    isSelected={invisibleSlug}
+                  >
+                    Invisible URL <span className='text-xs pl-2 font-semibold text-yellow-400'>(NEW!)</span>
+                  </Checkbox>
                   <Spacer y={0.7} />
-                  {urlMode == UrlMode.Slug && (
+                  {!invisibleSlug && (
                     <>
                       <Input
                         required
@@ -194,30 +180,43 @@ const Home: NextPage = () => {
                         labelLeft='cdy.pw/'
                         value={createState.slug}
                         color={
-                          validity === 'VALID' && patternMatch
+                          validity === 'VALID'
                             ? 'success'
-                            : (validity === 'INVALID' || !patternMatch) && createState.slug.length > 0
+                            : validity === 'INVALID' && createState.slug.length > 0
                             ? 'error'
                             : undefined
                         }
                         status={
-                          validity === 'VALID' && patternMatch
+                          validity === 'VALID'
                             ? 'success'
-                            : validity === 'INVALID' || !patternMatch
+                            : validity === 'INVALID' && createState.slug.length > 0
                             ? 'error'
                             : undefined
                         }
                         onChange={(e) => {
-                          setPatternMatch(e.target.validity.valid);
                           setCreateState({ ...createState, slug: e.target.value });
                         }}
                         contentRight={mutationValid.isLoading && <Loading size='xs' />}
-                        helperText={
-                          (validity === 'INVALID' && 'This slug is already taken') ||
-                          (createState.slug.length > 0 && !patternMatch && 'Invalid characters') ||
-                          undefined
-                        }
+                        helperText={(validity === 'INVALID' && 'This slug is already taken') || undefined}
                       />
+                      <Spacer y={1} />
+                      <Collapse divider={false} bordered title={<p className=''>No inspiration?</p>}>
+                        <p className='text-center opacity-50'>Let me generate the slug for you!</p>
+                        <Spacer y={0.4} />
+                        <div className='flex gap-3 flex-wrap [&>*]:grow'>
+                          {generators.map((generator, index) => (
+                            <Button
+                              key={index}
+                              auto
+                              onClick={() => {
+                                setCreateState({ ...createState, slug: generator.get() });
+                              }}
+                            >
+                              {generator.buttonText}
+                            </Button>
+                          ))}
+                        </div>
+                      </Collapse>
                       <Spacer y={1} />
                     </>
                   )}
