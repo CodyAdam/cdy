@@ -304,6 +304,7 @@ const Home: NextPage = () => {
                 </Button>
               </Tooltip>
             ))}
+            <Spacer y={1} />
             <a href='#public' className='absolute bottom-5 left-0 right-0 flex items-center justify-center'>
               <DoubleChevronDownIcon className={`h-5 ${isDark ? 'fill-zinc-800' : 'fill-zinc-400'}`} />
             </a>
