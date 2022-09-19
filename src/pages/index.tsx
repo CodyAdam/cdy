@@ -24,6 +24,7 @@ import ClipboardIcon from '../components/ClipboardIcon';
 import { getRandomAmogusSlug, getZeroWidthSlug } from '../utils/url-helper';
 import GithubLogo from '../components/GithubLogo';
 import DoubleChevronDownIcon from '../components/DoubleChevronDownIcon';
+import getRandomShadySlug from "shady-slug";
 
 const DEFAULT_URL: inferMutationInput<'shortLink.create'> = {
   isPublic: false,
@@ -36,6 +37,10 @@ const generators = [
     buttonText: 'Amogus slug',
     get: getRandomAmogusSlug,
   },
+  {
+    buttonText: 'Shady slug',
+    get: getRandomShadySlug,
+  }
 ];
 
 const Home: NextPage = () => {
