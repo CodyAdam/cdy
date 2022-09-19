@@ -2728,6 +2728,11 @@ semver@^7.3.7:
   dependencies:
     lru-cache "^6.0.0"
 
+shady-slug@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/shady-slug/-/shady-slug-1.0.1.tgz#2e6edba1f1bc2763167cb3844755f5b507e3c539"
+  integrity sha512-YrEL83Lt+xgDZiZPFwtSLlxbuMvQwvsHEmkJdD54lX+b7URgMsZW3ObRA6obk7A0O6YR7q4pfNZsQeew8CIEWA==
+
 shebang-command@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/shebang-command/-/shebang-command-2.0.0.tgz#ccd0af4f8835fbdc265b82461aaf0c36663f34ea"

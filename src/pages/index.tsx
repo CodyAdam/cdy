@@ -10,6 +10,7 @@ import {
   useTheme,
   Input,
   Tooltip,
+  Collapse,
 } from '@nextui-org/react';
 import type { NextPage } from 'next';
 import Head from 'next/head';
@@ -20,15 +21,61 @@ import SunIcon from '../components/SunIcon';
 import { inferMutationInput, trpc } from '../utils/trpc';
 import { useTheme as useNextTheme } from 'next-themes';
 import ClipboardIcon from '../components/ClipboardIcon';
-import { getZeroWidthSlug } from '../utils/url-helper';
+import {
+  getRandomAmogusSlug,
+  getZeroWidthSlug,
+  getRandomAnimalSlug,
+  getRandomEmojiSlug,
+  getRandomFoodSlug,
+  getRandomHandSlug,
+  getRandomHeadSlug,
+  getRandomHeartSlug,
+} from '../utils/url-helper';
 import GithubLogo from '../components/GithubLogo';
 import DoubleChevronDownIcon from '../components/DoubleChevronDownIcon';
+import getRandomShadySlug from 'shady-slug';
+import { getRandomInt } from '../utils/math-helpers';
 
 const DEFAULT_URL: inferMutationInput<'shortLink.create'> = {
   isPublic: false,
   url: '',
   slug: '',
 };
+
+const generators = [
+  {
+    buttonText: 'Amogus ඞ',
+    get: () => getRandomAmogusSlug(getRandomInt(4, 7)),
+  },
+  {
+    buttonText: 'Animal 🐢',
+    get: () => getRandomAnimalSlug(getRandomInt(4, 7)),
+  },
+  {
+    buttonText: 'Food 🍖',
+    get: () => getRandomFoodSlug(getRandomInt(4, 7)),
+  },
+  {
+    buttonText: 'Hand 👌',
+    get: () => getRandomHandSlug(getRandomInt(4, 7)),
+  },
+  {
+    buttonText: 'Head 😊',
+    get: () => getRandomHeadSlug(getRandomInt(4, 7)),
+  },
+  {
+    buttonText: 'Heart 💛',
+    get: () => getRandomHeartSlug(getRandomInt(4, 7)),
+  },
+  {
+    buttonText: 'Any Emoji',
+    get: () => getRandomEmojiSlug(getRandomInt(4, 7)),
+  },
+  {
+    buttonText: 'Shady 💦',
+    get: getRandomShadySlug,
+  },
+];
 
 const Home: NextPage = () => {
   const query = trpc.useQuery(['shortLink.getAllPublic']);
@@ -40,11 +87,12 @@ const Home: NextPage = () => {
   const { isDark } = useTheme();
   const [createdSlugs, setCreatedSlugs] = useState<string[]>([]);
   const [copied, setCopied] = useState(false);
-  const [patternMatch, setPatternMatch] = useState(true);
   const [invisibleSlug, setInvisibleSlug] = useState(false);
 
   function handleSubmit() {
-    mutation.mutate(createState, {
+    const state = createState;
+    if (invisibleSlug) state.slug = getZeroWidthSlug(4);
+    mutation.mutate(state, {
       onSuccess() {
         setCreatedSlugs((prev) => [createState.slug, ...prev]);
         setCreateState(DEFAULT_URL);
@@ -52,11 +100,6 @@ const Home: NextPage = () => {
       },
     });
   }
-
-  useEffect(() => {
-    if (invisibleSlug) setCreateState((prev) => ({ ...prev, slug: getZeroWidthSlug(4) }));
-    else setCreateState((prev) => ({ ...prev, slug: '' }));
-  }, [invisibleSlug]);
 
   useEffect(() => {
     if (createState.slug.length === 0) {
@@ -176,30 +219,43 @@ const Home: NextPage = () => {
                         labelLeft='cdy.pw/'
                         value={createState.slug}
                         color={
-                          validity === 'VALID' && patternMatch
+                          validity === 'VALID'
                             ? 'success'
-                            : (validity === 'INVALID' || !patternMatch) && createState.slug.length > 0
+                            : validity === 'INVALID' && createState.slug.length > 0
                             ? 'error'
                             : undefined
                         }
                         status={
-                          validity === 'VALID' && patternMatch
+                          validity === 'VALID'
                             ? 'success'
-                            : validity === 'INVALID' || !patternMatch
+                            : validity === 'INVALID' && createState.slug.length > 0
                             ? 'error'
                             : undefined
                         }
                         onChange={(e) => {
-                          setPatternMatch(e.target.validity.valid);
                           setCreateState({ ...createState, slug: e.target.value });
                         }}
                         contentRight={mutationValid.isLoading && <Loading size='xs' />}
-                        helperText={
-                          (validity === 'INVALID' && 'This slug is already taken') ||
-                          (createState.slug.length > 0 && !patternMatch && 'Invalid characters') ||
-                          undefined
-                        }
+                        helperText={(validity === 'INVALID' && 'This slug is already taken') || undefined}
                       />
+                      <Spacer y={1} />
+                      <Collapse divider={false} bordered title={<p className=''>No inspiration?</p>}>
+                        <p className='text-center opacity-50'>Let me generate the slug for you!</p>
+                        <Spacer y={0.4} />
+                        <div className='flex gap-3 flex-wrap [&>*]:grow'>
+                          {generators.map((generator, index) => (
+                            <Button
+                              key={index}
+                              auto
+                              onClick={() => {
+                                setCreateState({ ...createState, slug: generator.get() });
+                              }}
+                            >
+                              {generator.buttonText}
+                            </Button>
+                          ))}
+                        </div>
+                      </Collapse>
                       <Spacer y={1} />
                     </>
                   )}
