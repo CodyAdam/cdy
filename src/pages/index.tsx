@@ -1,45 +1,47 @@
 import {
-  Card,
   Button,
-  Text,
+  Card,
   Checkbox,
+  Collapse,
+  Divider,
+  Input,
   Loading,
-  Table,
   Spacer,
   Switch,
-  useTheme,
-  Input,
+  Table,
+  Text,
   Tooltip,
-  Collapse,
+  useTheme,
 } from '@nextui-org/react';
 import type { NextPage } from 'next';
+import { useTheme as useNextTheme } from 'next-themes';
 import Head from 'next/head';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import getRandomShadySlug from 'shady-slug';
+import ClipboardIcon from '../components/ClipboardIcon';
+import DoubleChevronDownIcon from '../components/DoubleChevronDownIcon';
+import GithubLogo from '../components/GithubLogo';
 import MoonIcon from '../components/MoonIcon';
 import SunIcon from '../components/SunIcon';
+import { getRandomInt } from '../utils/math-helpers';
 import { inferMutationInput, trpc } from '../utils/trpc';
-import { useTheme as useNextTheme } from 'next-themes';
-import ClipboardIcon from '../components/ClipboardIcon';
 import {
   getRandomAmogusSlug,
-  getZeroWidthSlug,
   getRandomAnimalSlug,
   getRandomEmojiSlug,
   getRandomFoodSlug,
   getRandomHandSlug,
   getRandomHeadSlug,
   getRandomHeartSlug,
+  getZeroWidthSlug,
 } from '../utils/url-helper';
-import GithubLogo from '../components/GithubLogo';
-import DoubleChevronDownIcon from '../components/DoubleChevronDownIcon';
-import getRandomShadySlug from 'shady-slug';
-import { getRandomInt } from '../utils/math-helpers';
 
 const DEFAULT_URL: inferMutationInput<'shortLink.create'> = {
   isPublic: false,
   url: '',
   slug: '',
+  token: "",
 };
 
 const generators = [
@@ -78,21 +80,32 @@ const generators = [
 ];
 
 const Home: NextPage = () => {
+  const mainRef = useRef<HTMLDivElement>(null);
   const query = trpc.useQuery(['shortLink.getAllPublic']);
   const mutation = trpc.useMutation('shortLink.create');
   const [createState, setCreateState] = useState(DEFAULT_URL);
   const [validity, setValidity] = useState<'VALID' | 'UNKNOWN' | 'INVALID'>('UNKNOWN');
   const mutationValid = trpc.useMutation(['shortLink.isValidSlug']);
+  const [errorMessage, setErrorMessage] = useState('');
   const { setTheme } = useNextTheme();
   const { isDark } = useTheme();
   const [createdSlugs, setCreatedSlugs] = useState<string[]>([]);
   const [copied, setCopied] = useState(false);
   const [invisibleSlug, setInvisibleSlug] = useState(false);
 
-  function handleSubmit() {
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    setErrorMessage('');
+    const formData = new FormData(e.currentTarget);
+    const turnstileResponse = formData.get('cf-turnstile-response') as string | undefined;
+
+    if (!turnstileResponse) {
+      setErrorMessage('Please complete the captcha!');
+      return;
+    }
+
     const state = createState;
-    if (invisibleSlug) state.slug = getZeroWidthSlug(4);
-    mutation.mutate(state, {
+    if (invisibleSlug) state.slug = getZeroWidthSlug(5);
+    mutation.mutate({ ...state, token: turnstileResponse }, {
       onSuccess() {
         setCreatedSlugs((prev) => [createState.slug, ...prev]);
         setCreateState(DEFAULT_URL);
@@ -101,7 +114,20 @@ const Home: NextPage = () => {
     });
   }
 
+  function loadScript() {
+    const main = mainRef.current;
+    if (!main) return;
+    const script = document.createElement('script');
+    script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
+    main.appendChild(script);
+  }
+
   useEffect(() => {
+    loadScript();
+  }, []);
+
+  useEffect(() => {
+    setErrorMessage('');
     if (createState.slug.length === 0) {
       setValidity('UNKNOWN');
       return;
@@ -124,7 +150,8 @@ const Home: NextPage = () => {
         <meta name='description' content='Create your own short URL' />
         <link rel='icon' href='/favicon.ico' />
       </Head>
-      <main className='flex flex-col items-center justify-center min-h-screen overflow-y-auto  '>
+      <main ref={mainRef} className='flex flex-col items-center justify-center min-h-screen overflow-y-auto  '>
+
         <Switch
           checked={isDark}
           onChange={(e) => setTheme(e.target.checked ? 'dark' : 'light')}
@@ -181,11 +208,11 @@ const Home: NextPage = () => {
                 </Link>
               </Card>
             </div>
-            <Card className={`w-full border-2`} css={{ backgroundColor: '$background' }} variant='bordered'>
+            {createdSlugs.length == 0 ? <Card className={`w-full border`} css={{ backgroundColor: '$background' }} variant='bordered'>
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
-                  handleSubmit();
+                  handleSubmit(e);
                 }}
               >
                 <Card.Body className='flex flex-col'>
@@ -207,7 +234,7 @@ const Home: NextPage = () => {
                     size='sm'
                     isSelected={invisibleSlug}
                   >
-                    Invisible URL <span className='text-xs pl-2 font-semibold text-yellow-400'>(NEW!)</span>
+                    Invisible URL
                   </Checkbox>
                   <Spacer y={0.7} />
                   {!invisibleSlug && (
@@ -222,15 +249,15 @@ const Home: NextPage = () => {
                           validity === 'VALID'
                             ? 'success'
                             : validity === 'INVALID' && createState.slug.length > 0
-                            ? 'error'
-                            : undefined
+                              ? 'error'
+                              : undefined
                         }
                         status={
                           validity === 'VALID'
                             ? 'success'
                             : validity === 'INVALID' && createState.slug.length > 0
-                            ? 'error'
-                            : undefined
+                              ? 'error'
+                              : undefined
                         }
                         onChange={(e) => {
                           setCreateState({ ...createState, slug: e.target.value });
@@ -256,6 +283,7 @@ const Home: NextPage = () => {
                           ))}
                         </div>
                       </Collapse>
+
                       <Spacer y={1} />
                     </>
                   )}
@@ -269,11 +297,13 @@ const Home: NextPage = () => {
                     isSelected={createState.isPublic}
                   />
                 </Card.Body>
-                <Card.Divider height={1} />
-                <Card.Footer className='justify-end gap-4 whitespace-pre-wrap'>
+                <Divider height={1} className='bg-black opacity-[15%]' />
+                <Card.Footer className='flex flex-wrap items-center justify-end border gap-4 whitespace-pre-wrap'>
                   {mutation.isError && (
                     <Text color='error'>An error occurred, open the console to see the details</Text>
                   )}
+                  {errorMessage && <Text color='error'>{errorMessage}</Text>}
+                  <div className='cf-turnstile' data-theme={isDark ? "dark" : "light"} data-sitekey="0x4AAAAAAALCTUabk4bQOgOH"></div>
                   <Card isHoverable isPressable className='w-fit'>
                     <Button type='submit' color='gradient' auto disabled={mutation.isLoading}>
                       {!mutation.isLoading ? 'Create' : <Loading size='sm' />}
@@ -281,7 +311,16 @@ const Home: NextPage = () => {
                   </Card>
                 </Card.Footer>
               </form>
-            </Card>
+            </Card> :
+              <div className='flex mt-20 items-center justify-center'>
+                <p>
+                  Here is your link! <span className='text-blue-500 cursor-pointer' onClick={() => {
+                    // reload the page
+                    window.location.reload();
+                  }}> Create another</span>
+                </p>
+              </div>
+            }
             {createdSlugs.map((slug) => (
               <Tooltip content={copied ? 'copied!' : 'copy'} key={slug} className='w-full' color={'invert'}>
                 <Button
@@ -296,7 +335,7 @@ const Home: NextPage = () => {
                   className='w-full'
                   css={{ fill: '$accents9' }}
                 >
-                  <p className=''>
+                  <p className='font-mono'>
                     cdy.pw/<strong>{slug}</strong>
                   </p>
                   <Spacer x={0.6} />
