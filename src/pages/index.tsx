@@ -1,147 +1,29 @@
+/* eslint-disable react/no-unescaped-entities */
 import {
-  Button,
   Card,
-  Checkbox,
-  Collapse,
-  Divider,
-  Input,
   Loading,
   Spacer,
   Switch,
   Table,
   Text,
   Tooltip,
-  useTheme,
+  useTheme
 } from '@nextui-org/react';
 import type { NextPage } from 'next';
 import { useTheme as useNextTheme } from 'next-themes';
 import Head from 'next/head';
 import Link from 'next/link';
-import { useEffect, useRef, useState } from 'react';
-import getRandomShadySlug from 'shady-slug';
-import ClipboardIcon from '../components/ClipboardIcon';
+import { useState } from 'react';
 import DoubleChevronDownIcon from '../components/DoubleChevronDownIcon';
 import GithubLogo from '../components/GithubLogo';
 import MoonIcon from '../components/MoonIcon';
 import SunIcon from '../components/SunIcon';
-import { getRandomInt } from '../utils/math-helpers';
-import { inferMutationInput, trpc } from '../utils/trpc';
-import {
-  getRandomAmogusSlug,
-  getRandomAnimalSlug,
-  getRandomEmojiSlug,
-  getRandomFoodSlug,
-  getRandomHandSlug,
-  getRandomHeadSlug,
-  getRandomHeartSlug,
-  getZeroWidthSlug,
-} from '../utils/url-helper';
-
-const DEFAULT_URL: inferMutationInput<'shortLink.create'> = {
-  isPublic: false,
-  url: '',
-  slug: '',
-  token: "",
-};
-
-const generators = [
-  {
-    buttonText: 'Amogus ඞ',
-    get: () => getRandomAmogusSlug(getRandomInt(4, 7)),
-  },
-  {
-    buttonText: 'Animal 🐢',
-    get: () => getRandomAnimalSlug(getRandomInt(4, 7)),
-  },
-  {
-    buttonText: 'Food 🍖',
-    get: () => getRandomFoodSlug(getRandomInt(4, 7)),
-  },
-  {
-    buttonText: 'Hand 👌',
-    get: () => getRandomHandSlug(getRandomInt(4, 7)),
-  },
-  {
-    buttonText: 'Head 😊',
-    get: () => getRandomHeadSlug(getRandomInt(4, 7)),
-  },
-  {
-    buttonText: 'Heart 💛',
-    get: () => getRandomHeartSlug(getRandomInt(4, 7)),
-  },
-  {
-    buttonText: 'Any Emoji',
-    get: () => getRandomEmojiSlug(getRandomInt(4, 7)),
-  },
-  {
-    buttonText: 'Shady 💦',
-    get: getRandomShadySlug,
-  },
-];
 
 const Home: NextPage = () => {
-  const mainRef = useRef<HTMLDivElement>(null);
-  const query = trpc.useQuery(['shortLink.getAllPublic']);
-  const mutation = trpc.useMutation('shortLink.create');
-  const [createState, setCreateState] = useState(DEFAULT_URL);
-  const [validity, setValidity] = useState<'VALID' | 'UNKNOWN' | 'INVALID'>('UNKNOWN');
-  const mutationValid = trpc.useMutation(['shortLink.isValidSlug']);
-  const [errorMessage, setErrorMessage] = useState('');
   const { setTheme } = useNextTheme();
   const { isDark } = useTheme();
-  const [createdSlugs, setCreatedSlugs] = useState<string[]>([]);
   const [copied, setCopied] = useState(false);
-  const [invisibleSlug, setInvisibleSlug] = useState(false);
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    setErrorMessage('');
-    const formData = new FormData(e.currentTarget);
-    const turnstileResponse = formData.get('cf-turnstile-response') as string | undefined;
-
-    if (!turnstileResponse) {
-      setErrorMessage('Please complete the captcha!');
-      return;
-    }
-
-    const state = createState;
-    if (invisibleSlug) state.slug = getZeroWidthSlug(5);
-    mutation.mutate({ ...state, token: turnstileResponse }, {
-      onSuccess() {
-        setCreatedSlugs((prev) => [createState.slug, ...prev]);
-        setCreateState(DEFAULT_URL);
-        query.refetch();
-      },
-    });
-  }
-
-  function loadScript() {
-    const main = mainRef.current;
-    if (!main) return;
-    const script = document.createElement('script');
-    script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
-    main.appendChild(script);
-  }
-
-  useEffect(() => {
-    loadScript();
-  }, []);
-
-  useEffect(() => {
-    setErrorMessage('');
-    if (createState.slug.length === 0) {
-      setValidity('UNKNOWN');
-      return;
-    }
-    mutationValid.mutate(
-      { slug: createState.slug },
-      {
-        onSuccess(data) {
-          setValidity(data ? 'VALID' : 'INVALID');
-        },
-      },
-    );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [createState.slug]);
 
   return (
     <>
@@ -150,7 +32,7 @@ const Home: NextPage = () => {
         <meta name='description' content='Create your own short URL' />
         <link rel='icon' href='/favicon.ico' />
       </Head>
-      <main ref={mainRef} className='flex flex-col items-center justify-center min-h-screen overflow-y-auto  '>
+      <main className='flex flex-col items-center justify-center min-h-screen overflow-y-auto  '>
 
         <Switch
           checked={isDark}
@@ -164,32 +46,19 @@ const Home: NextPage = () => {
         <div className='flex flex-col gap-8 max-w-lg w-full'>
           <div className='min-h-screen flex flex-col gap-8 justify-center sm:p-10 p-4 relative'>
             <div className='flex items-center flex-col justify-center gap-2 '>
-              <Tooltip
-                content={copied ? 'copied!' : 'copy'}
-                className='w-fit cursor-pointer select-none'
-                color={'invert'}
-                onClick={() => {
-                  navigator.clipboard.writeText(`https://cdy.pw`);
-                  setCopied(true);
-                  setTimeout(() => {
-                    setCopied(false);
-                  }, 1000);
+              <Text
+                h1
+                css={{
+                  textGradient: '45deg, $red600 -10%, $yellow600 50%, $pink800 100%',
+                  textAlign: 'center',
+                  margin: '0',
                 }}
+                weight='bold'
+                className='px-1 text-[5rem]'
               >
-                <Text
-                  h1
-                  css={{
-                    textGradient: '45deg, $red600 -10%, $yellow600 50%, $pink800 100%',
-                    textAlign: 'center',
-                    margin: '0',
-                  }}
-                  weight='bold'
-                  className='cursor-pointer px-1'
-                >
-                  cdy.pw
-                </Text>
-              </Tooltip>
-              <Card isHoverable className='bg-transparent w-fit'>
+                cdy.pw
+              </Text>
+              <Card isHoverable className='bg-transparent w-fit border-none'>
                 <Link href='https://github.com/CodyAdam' passHref>
                   <a target='_blank'>
                     <Text
@@ -199,7 +68,7 @@ const Home: NextPage = () => {
                         textAlign: 'center',
                         margin: '0',
                       }}
-                      className='cursor-pointer px-1 flex items-center gap-1'
+                      className='cursor-pointer px-1 flex items-center gap-1 text-sm'
                     >
                       Cool and fast URL shortener by <span className='text-yellow-400'>Cody</span>{' '}
                       <GithubLogo className='w-3 h-3 fill-yellow-400' />
@@ -207,174 +76,27 @@ const Home: NextPage = () => {
                   </a>
                 </Link>
               </Card>
-            </div>
-            {createdSlugs.length == 0 ? <Card className={`w-full border`} css={{ backgroundColor: '$background' }} variant='bordered'>
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  handleSubmit(e);
-                }}
-              >
-                <Card.Body className='flex flex-col'>
-                  <Input
-                    clearable
-                    label='URL to shorten'
-                    placeholder='https://example.com'
-                    type='url'
-                    value={createState.url}
-                    onChange={(newValue) => {
-                      setCreateState({ ...createState, url: newValue.target.value });
-                    }}
-                    required
-                  />
-                  <Spacer y={1} />
-                  <Checkbox
-                    color='gradient'
-                    onChange={(invisible) => setInvisibleSlug(invisible)}
-                    size='sm'
-                    isSelected={invisibleSlug}
-                  >
-                    Invisible URL
-                  </Checkbox>
-                  <Spacer y={0.7} />
-                  {!invisibleSlug && (
-                    <>
-                      <Input
-                        required
-                        clearable
-                        label='Slug'
-                        labelLeft='cdy.pw/'
-                        value={createState.slug}
-                        color={
-                          validity === 'VALID'
-                            ? 'success'
-                            : validity === 'INVALID' && createState.slug.length > 0
-                              ? 'error'
-                              : undefined
-                        }
-                        status={
-                          validity === 'VALID'
-                            ? 'success'
-                            : validity === 'INVALID' && createState.slug.length > 0
-                              ? 'error'
-                              : undefined
-                        }
-                        onChange={(e) => {
-                          setCreateState({ ...createState, slug: e.target.value });
-                        }}
-                        contentRight={mutationValid.isLoading && <Loading size='xs' />}
-                        helperText={(validity === 'INVALID' && 'This slug is already taken') || undefined}
-                      />
-                      <Spacer y={1} />
-                      <Collapse divider={false} bordered title={<p className=''>No inspiration?</p>}>
-                        <p className='text-center opacity-50'>Let me generate the slug for you!</p>
-                        <Spacer y={0.4} />
-                        <div className='flex gap-3 flex-wrap [&>*]:grow'>
-                          {generators.map((generator, index) => (
-                            <Button
-                              key={index}
-                              auto
-                              onClick={() => {
-                                setCreateState({ ...createState, slug: generator.get() });
-                              }}
-                            >
-                              {generator.buttonText}
-                            </Button>
-                          ))}
-                        </div>
-                      </Collapse>
-
-                      <Spacer y={1} />
-                    </>
-                  )}
-                  <Checkbox
-                    label='Public'
-                    color='gradient'
-                    onChange={(isPublic) => {
-                      setCreateState({ ...createState, isPublic });
-                    }}
-                    size='sm'
-                    isSelected={createState.isPublic}
-                  />
-                </Card.Body>
-                <Divider height={1} className='bg-black opacity-[15%]' />
-                <Card.Footer className='flex flex-wrap items-center justify-end border gap-4 whitespace-pre-wrap'>
-                  {mutation.isError && (
-                    <Text color='error'>An error occurred, open the console to see the details</Text>
-                  )}
-                  {errorMessage && <Text color='error'>{errorMessage}</Text>}
-                  <div className='cf-turnstile' data-theme={isDark ? "dark" : "light"} data-sitekey="0x4AAAAAAALCTUabk4bQOgOH"></div>
-                  <Card isHoverable isPressable className='w-fit'>
-                    <Button type='submit' color='gradient' auto disabled={mutation.isLoading}>
-                      {!mutation.isLoading ? 'Create' : <Loading size='sm' />}
-                    </Button>
-                  </Card>
-                </Card.Footer>
-              </form>
-            </Card> :
-              <div className='flex mt-20 items-center justify-center'>
-                <p>
-                  Here is your link! <span className='text-blue-500 cursor-pointer' onClick={() => {
-                    // reload the page
-                    window.location.reload();
-                  }}> Create another</span>
-                </p>
-              </div>
-            }
-            {createdSlugs.map((slug) => (
-              <Tooltip content={copied ? 'copied!' : 'copy'} key={slug} className='w-full' color={'invert'}>
-                <Button
-                  color='gradient'
-                  onClick={() => {
-                    navigator.clipboard.writeText(`https://cdy.pw/${slug}`);
-                    setCopied(true);
-                    setTimeout(() => {
-                      setCopied(false);
-                    }, 1000);
-                  }}
-                  className='w-full'
-                  css={{ fill: '$accents9' }}
-                >
-                  <p className='font-mono'>
-                    cdy.pw/<strong>{slug}</strong>
+              <div className={`flex flex-col gap-4 mt-14 text-2xl max-w-lg p-8 transition-colors rounded-lg border ${isDark ? "bg-orange-400/10 border-orange-500/50" : "bg-orange-100 border-orange-500"}`}>
+                <h2><strong>Exciting Update Ahead!</strong></h2>
+                <div className={`flex flex-col gap-4 [&>p]:leading-snug ${isDark ? "text-zinc-300" : "text-zinc-700"}`}>
+                  <p>Dear Users,</p>
+                  <p>We're thrilled to announce that <strong>cdy.pw</strong> is undergoing a major transformation! 🌟 This update brings significant changes and a lot of new exciting features!</p>
+                  <p>
+                    The domain <strong>cdy.pw</strong> will be <strong>permanently</strong> redirected to <strong>1u.to</strong> on <strong>January 1st, 2024</strong>.
                   </p>
-                  <Spacer x={0.6} />
-                  <ClipboardIcon className='w-3' />
-                </Button>
-              </Tooltip>
-            ))}
-            <Spacer y={1} />
-            <a href='#public' className='absolute bottom-5 left-0 right-0 flex items-center justify-center'>
-              <DoubleChevronDownIcon className={`h-5 ${isDark ? 'fill-zinc-800' : 'fill-zinc-400'}`} />
-            </a>
-          </div>
-          <div id='public' className='min-h-screen flex flex-col gap-8 justify-center sm:p-10 p-4'>
-            {query.isSuccess ? (
-              <Table compact striped bordered aria-labelledby='public links table'>
-                <Table.Header>
-                  <Table.Column>Slug</Table.Column>
-                  <Table.Column>Public URL</Table.Column>
-                </Table.Header>
-                <Table.Body>
-                  {query.data.map((link) => (
-                    <Table.Row key={link.slug}>
-                      <Table.Cell>
-                        <Link href={`https://cdy.pw/${link.slug}`} passHref>
-                          <a target='_blank'>{'/' + link.slug}</a>
-                        </Link>
-                      </Table.Cell>
-                      <Table.Cell
-                        css={{ color: '$accents7', maxWidth: '20rem', overflow: 'hidden', textOverflow: 'ellipsis' }}
-                      >
-                        {link.url}
-                      </Table.Cell>
-                    </Table.Row>
-                  ))}
-                </Table.Body>
-              </Table>
-            ) : (
-              <Loading size='xl' />
-            )}
+                  <div className='flex gap-4 items-center justify-center py-6 px-2'>
+                    <p>cdy.pw</p>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 32 32"><path fill="currentColor" d="m18 6l-1.43 1.393L24.15 15H4v2h20.15l-7.58 7.573L18 26l10-10L18 6z"></path></svg>
+                    <p><a href="https://1u.to"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="underline hover:underline hover:text-blue-500 font-bold">1u.to</a></p>
+                  </div>
+                  <p>Stay tuned for an upgraded journey with us!</p>
+                  <p>Thank you for your continued support! 💛</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </main>
