@@ -13,6 +13,6 @@ export async function middleware(req: NextRequest) {
   //   return NextResponse.redirect(data.url);
 
   // Redirect all path to /
-  if (req.nextUrl.pathname !== "/") return NextResponse.redirect("/");
+  if (req.nextUrl.pathname !== "/") return NextResponse.redirect(req.nextUrl.origin + "/");
   else return NextResponse.next();
 }
